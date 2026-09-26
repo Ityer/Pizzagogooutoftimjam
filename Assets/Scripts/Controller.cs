@@ -8,6 +8,7 @@ public class DeliveryTruck : MonoBehaviour
     [SerializeField] private InputActionReference left;
     [SerializeField] private InputActionReference right;
     [SerializeField] private InputActionReference brake;
+    [SerializeField] private InputActionReference flip;
 
     [Header("Driving")]
     [SerializeField] private float acceleration = 12f;
@@ -20,12 +21,20 @@ public class DeliveryTruck : MonoBehaviour
     [SerializeField] private float lateralGrip = 8f;
     [SerializeField] private float coastDeceleration = 3f; 
     [SerializeField] private float maxUpwardVelocity = 2f;
+    [SerializeField] private float speedPenaltyPerPizza = 1.5f;
+
+    [Header("Ground Detection")]
+    [SerializeField] private float groundNormalThreshold = 0.35f;
+
+    private bool isGrounded;
+    private PizzaCargo pizzaCargo;
 
     private Rigidbody rb;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        pizzaCargo = GetComponent<PizzaCargo>();
     }
 
     private void OnEnable()
@@ -34,6 +43,7 @@ public class DeliveryTruck : MonoBehaviour
         left.action.Enable();
         right.action.Enable();
         brake.action.Enable();
+        flip.action.Enable();
     }
 
     private void OnDisable()
@@ -42,6 +52,7 @@ public class DeliveryTruck : MonoBehaviour
         left.action.Disable();
         right.action.Disable();
         brake.action.Disable();
+        flip.action.Disable();
     }
 
     private void FixedUpdate()
@@ -50,10 +61,15 @@ public class DeliveryTruck : MonoBehaviour
         Steer();
         ApplyLateralGrip();
         LimitAirTime();
+        FlipTruck();
     }
 
     private void Drive()
     {
+
+        if (!isGrounded)
+            return;
+
         Vector3 velocity = rb.linearVelocity;
         velocity.y = 0f;
 
@@ -100,10 +116,20 @@ public class DeliveryTruck : MonoBehaviour
         }
 
 
-        if (forwardSpeed > maxSpeed)
+        float currentMaxSpeed = maxSpeed;
+
+        if (pizzaCargo != null)
+        {
+            currentMaxSpeed -=
+                pizzaCargo.GetPizzaCount() * speedPenaltyPerPizza;
+        }
+
+        currentMaxSpeed = Mathf.Max(5f, currentMaxSpeed);
+
+        if (forwardSpeed > currentMaxSpeed)
         {
             Vector3 limitedVelocity =
-                transform.forward * maxSpeed;
+                transform.forward * currentMaxSpeed;
 
             rb.linearVelocity = new Vector3(
                 limitedVelocity.x,
@@ -190,5 +216,40 @@ public class DeliveryTruck : MonoBehaviour
             velocity.y = maxUpwardVelocity;
             rb.linearVelocity = velocity;
         }
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        foreach (ContactPoint contact in collision.contacts)
+        {
+            // Check whether this surface is facing upward enough
+            if (contact.normal.y > groundNormalThreshold)
+            {
+                isGrounded = true;
+                return;
+            }
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        isGrounded = false;
+    }
+
+    private void FlipTruck()
+    {
+        if (!flip.action.WasPressedThisFrame())
+            return;
+
+        Vector3 currentRotation = transform.eulerAngles;
+
+        transform.rotation = Quaternion.Euler(
+            0f,
+            currentRotation.y,
+            0f
+        );
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
     }
 }

@@ -71,4 +71,14 @@ public class PizzaCargo : MonoBehaviour
 
         return true;
     }
+
+    public bool IsFull()
+    {
+        return pizzaCount >= maxPizzas;
+    }
+
+    public int GetPizzaCount()
+    {
+        return pizzaCount;
+    }
 }

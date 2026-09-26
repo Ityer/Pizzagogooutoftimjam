@@ -145,7 +145,7 @@ CapsuleCollider:
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+  m_Center: {x: 0.000000059604645, y: -0.27, z: -0.00000008940697}
 --- !u!114 &2991653541117140089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,6 +160,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PizzaDeliveryPoint
   pizzaPrefab: {fileID: 919132149155446097, guid: 443b6042732ec764db0d6e35aa0d4824, type: 3}
   pizzaPlacement: {fileID: 1213655960020873042}
+  deliveryTime: 1.5
+  progressImage: {fileID: 0}
 --- !u!1 &6714050094660993786
 GameObject:
   m_ObjectHideFlags: 0

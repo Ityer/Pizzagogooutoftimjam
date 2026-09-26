@@ -1,5 +1,5 @@
-using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PizzaSpawner : MonoBehaviour
 {
@@ -9,17 +9,61 @@ public class PizzaSpawner : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private float spawnInterval = 2f;
 
-    private Coroutine pizzaRoutine;
+    [Header("Loading Indicator")]
+    [SerializeField] private Image progressImage;
+
+    private float timer = 0f;
+    private bool truckInside = false;
+
+    private void Start()
+    {
+        progressImage.fillAmount = 0f;
+    }
+
+    private void Update()
+    {
+        if (!truckInside)
+            return;
+
+        // Stop loading if the truck is already full
+        if (pizzaCargo.IsFull())
+        {
+            timer = 0f;
+            progressImage.fillAmount = 0f;
+            return;
+        }
+
+        timer += Time.deltaTime;
+
+        // Update radial progress
+        progressImage.fillAmount =
+            timer / spawnInterval;
+
+        // Pizza ready
+        if (timer >= spawnInterval)
+        {
+            pizzaCargo.AddPizza();
+
+            DeliveryManager deliveryManager = FindAnyObjectByType<DeliveryManager>();
+
+            if (deliveryManager != null)
+            {
+                deliveryManager.ShowNextDeliveryPoint();
+            }
+
+            timer = 0f;
+            progressImage.fillAmount = 0f;
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player"))
             return;
 
-        if (pizzaRoutine == null)
-        {
-            pizzaRoutine = StartCoroutine(AddPizzas());
-        }
+        truckInside = true;
+        timer = 0f;
+        progressImage.fillAmount = 0f;
     }
 
     private void OnTriggerExit(Collider other)
@@ -27,21 +71,8 @@ public class PizzaSpawner : MonoBehaviour
         if (!other.CompareTag("Player"))
             return;
 
-        if (pizzaRoutine != null)
-        {
-            StopCoroutine(pizzaRoutine);
-            pizzaRoutine = null;
-        }
+        truckInside = false;
+        timer = 0f;
+        progressImage.fillAmount = 0f;
     }
-
-    private IEnumerator AddPizzas()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(spawnInterval);
-
-            pizzaCargo.AddPizza();
-        }
-    }
-
 }
