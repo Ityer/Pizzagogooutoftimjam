@@ -12,6 +12,9 @@ public class PizzaSpawner : MonoBehaviour
     [Header("Loading Indicator")]
     [SerializeField] private Image progressImage;
 
+    [SerializeField] private AudioClip clip;
+
+
     private float timer = 0f;
     private bool truckInside = false;
 
@@ -61,6 +64,7 @@ public class PizzaSpawner : MonoBehaviour
             if (deliveryManager != null)
             {
                 deliveryManager.ShowNextDeliveryPoint();
+                deliveryManager.PlayDeliverySound(clip);
             }
 
             timer = 0f;

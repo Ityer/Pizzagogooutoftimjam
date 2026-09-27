@@ -22,6 +22,15 @@ public class DeliveryManager : MonoBehaviour
     [SerializeField] private DeliveryArrow deliveryArrow;
     [SerializeField] private Transform pizzaSpawner;
 
+    [Header("Music")]
+    [SerializeField] private AudioSource musicSource;
+    [SerializeField] private AudioSource deliverySFXSource;
+    [SerializeField] private AudioClip startClick;
+    [SerializeField] private AudioClip win;
+    [SerializeField] private AudioClip lose;
+
+
+
     private PizzaDeliveryPoint[] deliveryPoints;
     private PizzaCargo pizzaCargo;
 
@@ -77,6 +86,8 @@ public class DeliveryManager : MonoBehaviour
         {
             startScreen.SetActive(false);
             gameStarted = true;
+            PlayDeliverySound(startClick);
+            musicSource.Play();
         }
 
         if (gameFinished || !gameStarted)
@@ -184,6 +195,8 @@ public class DeliveryManager : MonoBehaviour
 
         winMessage.text =
             winner ? winningText : failText;
+
+        PlayDeliverySound(winner ? win:lose);
     }
 
     private void SetNearestActiveDelivery()
@@ -231,4 +244,16 @@ public class DeliveryManager : MonoBehaviour
             deliveryArrow.SetTarget(closestPoint);
         }
     }
+
+    public void PlayDeliverySound(AudioClip clip)
+    {
+        if (deliverySFXSource == null || clip == null)
+            return;
+
+        deliverySFXSource.PlayOneShot(clip);
+    }
+
+
+
+
 }

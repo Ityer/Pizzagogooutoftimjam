@@ -13,6 +13,9 @@ public class PizzaDeliveryPoint : MonoBehaviour
     [Header("Loading Indicator")]
     [SerializeField] private Image progressImage;
 
+    [Header("Delivery Sound")]
+    [SerializeField] private AudioClip deliverySound;
+
     private PizzaCargo pizzaCargo;
     private DeliveryManager deliveryManager;
 
@@ -139,11 +142,15 @@ public class PizzaDeliveryPoint : MonoBehaviour
             rotation
         );
 
+        if (deliveryManager != null && deliverySound != null)
+        {
+            deliveryManager.PlayDeliverySound(deliverySound);
+        }
+
         // Mark this point as delivered
         delivered = true;
 
-        // Remove the delivery point BEFORE telling
-        // the manager to find the next target.
+        // Remove the delivery point
         transform.parent.gameObject.SetActive(false);
 
         // Update delivery counter and navigation

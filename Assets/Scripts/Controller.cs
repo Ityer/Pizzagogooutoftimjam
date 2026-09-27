@@ -26,6 +26,13 @@ public class DeliveryTruck : MonoBehaviour
     [Header("Ground Detection")]
     [SerializeField] private float groundNormalThreshold = 0.35f;
 
+    [Header("Engine Sound")]
+    [SerializeField] private AudioSource engineAudio;
+    [SerializeField] private float minEnginePitch = 0.7f;
+    [SerializeField] private float maxEnginePitch = 1.5f;
+    [SerializeField] private float engineVolume = 0.435f;
+    [SerializeField] private float engineSmoothSpeed = 5f;
+
     private bool isGrounded;
     private PizzaCargo pizzaCargo;
 
@@ -52,6 +59,12 @@ public class DeliveryTruck : MonoBehaviour
         );
 
         rb.constraints |= RigidbodyConstraints.FreezeRotationZ;
+
+        if (engineAudio != null)
+        {
+            engineAudio.volume = engineVolume;
+            engineAudio.pitch = minEnginePitch;
+        }
     }
 
     private void OnEnable()
@@ -81,6 +94,7 @@ public class DeliveryTruck : MonoBehaviour
             ApplyLateralGrip();
             LimitAirTime();
             FlipTruck();
+            UpdateEngineSound();
         }
     }
 
@@ -279,6 +293,45 @@ public class DeliveryTruck : MonoBehaviour
 
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
+    }
+
+    private void UpdateEngineSound()
+    {
+        if (engineAudio == null)
+            return;
+
+        float speed = rb.linearVelocity.magnitude;
+
+        float maxPossibleSpeed = maxSpeed;
+
+        if (pizzaCargo != null)
+        {
+            maxPossibleSpeed -=
+                pizzaCargo.GetPizzaCount() * speedPenaltyPerPizza;
+        }
+
+        maxPossibleSpeed = Mathf.Max(5f, maxPossibleSpeed);
+
+        float speedPercent =
+            Mathf.Clamp01(speed / maxPossibleSpeed);
+
+        float targetPitch =
+            Mathf.Lerp(
+                minEnginePitch,
+                maxEnginePitch,
+                speedPercent
+            );
+
+        engineAudio.pitch = Mathf.Lerp(
+            engineAudio.pitch,
+            targetPitch,
+            engineSmoothSpeed * Time.fixedDeltaTime
+        );
+
+        if (!engineAudio.isPlaying)
+        {
+            engineAudio.Play();
+        }
     }
 
 }

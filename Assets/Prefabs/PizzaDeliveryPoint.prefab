@@ -162,6 +162,7 @@ MonoBehaviour:
   pizzaPlacement: {fileID: 1213655960020873042}
   deliveryTime: 1.5
   progressImage: {fileID: 0}
+  deliverySound: {fileID: 8300000, guid: 4d4117ad40c7d4f4282a23c44f3604e1, type: 3}
 --- !u!1 &6714050094660993786
 GameObject:
   m_ObjectHideFlags: 0
