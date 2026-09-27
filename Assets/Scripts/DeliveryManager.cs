@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class DeliveryManager : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class DeliveryManager : MonoBehaviour
     [SerializeField] private AudioClip win;
     [SerializeField] private AudioClip lose;
 
-
+    private const string ReplayKey = "PizzaGameReplay";
 
     private PizzaDeliveryPoint[] deliveryPoints;
     private PizzaCargo pizzaCargo;
@@ -58,13 +59,29 @@ public class DeliveryManager : MonoBehaviour
 
         totalDeliveries = deliveryPoints.Length;
 
-        // Hide all delivery points at the start
         foreach (PizzaDeliveryPoint point in deliveryPoints)
         {
             point.SetVisible(false);
         }
 
         timer = gameTime;
+
+        bool isReplay =
+            PlayerPrefs.GetInt(ReplayKey, 0) == 1;
+
+        if (isReplay)
+        {
+            PlayerPrefs.SetInt(ReplayKey, 0);
+            PlayerPrefs.Save();
+
+            startScreen.SetActive(false);
+            gameStarted = true;
+
+            if (musicSource != null)
+            {
+                musicSource.Play();
+            }
+        }
 
         UpdateUI();
         UpdateTimerUI();
@@ -86,12 +103,24 @@ public class DeliveryManager : MonoBehaviour
         {
             startScreen.SetActive(false);
             gameStarted = true;
-            PlayDeliverySound(startClick);
 
-            musicSource.Play();
+            if (musicSource != null)
+            {
+                musicSource.Play();
+            }
         }
 
-        if (gameFinished || !gameStarted)
+        if (gameFinished)
+        {
+            if (Enter.action.WasPressedThisFrame())
+            {
+                RestartGame();
+            }
+
+            return;
+        }
+
+        if (!gameStarted)
             return;
 
         // Count down
@@ -102,7 +131,6 @@ public class DeliveryManager : MonoBehaviour
 
         UpdateTimerUI();
 
-        // Time ran out
         if (timer <= 0f)
         {
             GameOver(false);
@@ -249,7 +277,17 @@ public class DeliveryManager : MonoBehaviour
         deliverySFXSource.PlayOneShot(clip);
     }
 
+    private void RestartGame()
+    {
+        PlayerPrefs.SetInt(ReplayKey, 1);
+        PlayerPrefs.Save();
 
+        Scene currentScene =
+            SceneManager.GetActiveScene();
 
+        SceneManager.LoadScene(
+            currentScene.buildIndex
+        );
+    }
 
 }
