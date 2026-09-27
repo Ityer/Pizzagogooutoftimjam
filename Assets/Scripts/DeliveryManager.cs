@@ -87,6 +87,7 @@ public class DeliveryManager : MonoBehaviour
             startScreen.SetActive(false);
             gameStarted = true;
             PlayDeliverySound(startClick);
+
             musicSource.Play();
         }
 
@@ -156,11 +157,6 @@ public class DeliveryManager : MonoBehaviour
         {
             GameOver(true);
         }
-    }
-
-    public void StartGame()
-    {
-        gameStarted = true;
     }
 
     public bool IsGameStarted()
