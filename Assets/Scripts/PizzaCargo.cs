@@ -24,12 +24,16 @@ public class PizzaCargo : MonoBehaviour
 
     private void UpdatePizzaStack()
     {
+        if (stackPoint == null || pizzaPrefab == null)
+            return;
+
         // Remove existing pizzas
         for (int i = stackPoint.childCount - 1; i >= 0; i--)
         {
             Destroy(stackPoint.GetChild(i).gameObject);
         }
 
+        // Rebuild pizza stack
         for (int i = 0; i < pizzaCount; i++)
         {
             GameObject pizza = Instantiate(
@@ -61,6 +65,7 @@ public class PizzaCargo : MonoBehaviour
         pizzaCount++;
         UpdatePizzaStack();
     }
+
     public bool RemovePizza()
     {
         if (pizzaCount <= 0)

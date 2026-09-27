@@ -44,7 +44,9 @@ public class PizzaDeliveryPoint : MonoBehaviour
             timer = 0f;
 
             if (progressImage != null)
+            {
                 progressImage.fillAmount = 0f;
+            }
 
             return;
         }
@@ -63,21 +65,29 @@ public class PizzaDeliveryPoint : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (!other.CompareTag("Player"))
             return;
 
-        pizzaCargo = other.GetComponent<PizzaCargo>();
+        if (pizzaCargo == null)
+        {
+            pizzaCargo = other.GetComponent<PizzaCargo>();
+        }
 
         if (pizzaCargo == null)
             return;
 
-        truckInside = true;
-        timer = 0f;
+        if (!truckInside)
+        {
+            truckInside = true;
+            timer = 0f;
 
-        if (progressImage != null)
-            progressImage.fillAmount = 0f;
+            if (progressImage != null)
+            {
+                progressImage.fillAmount = 0f;
+            }
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -89,7 +99,9 @@ public class PizzaDeliveryPoint : MonoBehaviour
         timer = 0f;
 
         if (progressImage != null)
+        {
             progressImage.fillAmount = 0f;
+        }
 
         pizzaCargo = null;
     }
@@ -101,7 +113,9 @@ public class PizzaDeliveryPoint : MonoBehaviour
             timer = 0f;
 
             if (progressImage != null)
+            {
                 progressImage.fillAmount = 0f;
+            }
 
             return;
         }
@@ -110,7 +124,9 @@ public class PizzaDeliveryPoint : MonoBehaviour
         timer = 0f;
 
         if (progressImage != null)
+        {
             progressImage.fillAmount = 0f;
+        }
 
         // Spawn the delivered pizza
         Quaternion rotation =
@@ -123,19 +139,27 @@ public class PizzaDeliveryPoint : MonoBehaviour
             rotation
         );
 
-        // Update delivery counter
+        // Mark this point as delivered
+        delivered = true;
+
+        // Remove the delivery point BEFORE telling
+        // the manager to find the next target.
+        transform.parent.gameObject.SetActive(false);
+
+        // Update delivery counter and navigation
         if (deliveryManager != null)
         {
             deliveryManager.CompleteDelivery();
         }
-
-        delivered = true;
-
-        // Remove the delivery point
-        transform.parent.gameObject.SetActive(false);
     }
+
     public void SetVisible(bool visible)
     {
         transform.parent.gameObject.SetActive(visible);
+    }
+
+    public Transform GetTargetTransform()
+    {
+        return transform.parent;
     }
 }

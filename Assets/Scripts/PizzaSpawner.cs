@@ -17,7 +17,10 @@ public class PizzaSpawner : MonoBehaviour
 
     private void Start()
     {
-        progressImage.fillAmount = 0f;
+        if (progressImage != null)
+        {
+            progressImage.fillAmount = 0f;
+        }
     }
 
     private void Update()
@@ -29,22 +32,31 @@ public class PizzaSpawner : MonoBehaviour
         if (pizzaCargo.IsFull())
         {
             timer = 0f;
-            progressImage.fillAmount = 0f;
+
+            if (progressImage != null)
+            {
+                progressImage.fillAmount = 0f;
+            }
+
             return;
         }
 
         timer += Time.deltaTime;
 
         // Update radial progress
-        progressImage.fillAmount =
-            timer / spawnInterval;
+        if (progressImage != null)
+        {
+            progressImage.fillAmount =
+                timer / spawnInterval;
+        }
 
         // Pizza ready
         if (timer >= spawnInterval)
         {
             pizzaCargo.AddPizza();
 
-            DeliveryManager deliveryManager = FindAnyObjectByType<DeliveryManager>();
+            DeliveryManager deliveryManager =
+                FindAnyObjectByType<DeliveryManager>();
 
             if (deliveryManager != null)
             {
@@ -52,7 +64,11 @@ public class PizzaSpawner : MonoBehaviour
             }
 
             timer = 0f;
-            progressImage.fillAmount = 0f;
+
+            if (progressImage != null)
+            {
+                progressImage.fillAmount = 0f;
+            }
         }
     }
 
@@ -63,7 +79,11 @@ public class PizzaSpawner : MonoBehaviour
 
         truckInside = true;
         timer = 0f;
-        progressImage.fillAmount = 0f;
+
+        if (progressImage != null)
+        {
+            progressImage.fillAmount = 0f;
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -73,6 +93,10 @@ public class PizzaSpawner : MonoBehaviour
 
         truckInside = false;
         timer = 0f;
-        progressImage.fillAmount = 0f;
+
+        if (progressImage != null)
+        {
+            progressImage.fillAmount = 0f;
+        }
     }
 }

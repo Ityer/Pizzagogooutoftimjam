@@ -29,12 +29,29 @@ public class DeliveryTruck : MonoBehaviour
     private bool isGrounded;
     private PizzaCargo pizzaCargo;
 
+    private DeliveryManager deliveryManager;
     private Rigidbody rb;
+    private Transform tf;
+
+
+    private void Start()
+    {
+        deliveryManager = FindAnyObjectByType<DeliveryManager>();
+    }
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        tf = GetComponent<Transform>();
         pizzaCargo = GetComponent<PizzaCargo>();
+
+        rb.centerOfMass = new Vector3(
+            0f,
+            -0.5f,
+            0f
+        );
+
+        rb.constraints |= RigidbodyConstraints.FreezeRotationZ;
     }
 
     private void OnEnable()
@@ -57,11 +74,14 @@ public class DeliveryTruck : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Drive();
-        Steer();
-        ApplyLateralGrip();
-        LimitAirTime();
-        FlipTruck();
+        if (deliveryManager.IsGameStarted())
+        {
+            Drive();
+            Steer();
+            ApplyLateralGrip();
+            LimitAirTime();
+            FlipTruck();
+        }
     }
 
     private void Drive()
@@ -173,7 +193,8 @@ public class DeliveryTruck : MonoBehaviour
             return;
         }
 
-        float forwardSpeed = Vector3.Dot(velocity, transform.forward);
+        float forwardSpeed =
+            Vector3.Dot(velocity, transform.forward);
 
         if (forwardSpeed < 0f)
         {
@@ -185,7 +206,14 @@ public class DeliveryTruck : MonoBehaviour
             steeringSpeed *
             Time.fixedDeltaTime;
 
-        transform.Rotate(0f, turnAmount, 0f);
+        // Rotate around the WORLD Y axis.
+        // This prevents steering from introducing roll.
+        Quaternion turnRotation =
+            Quaternion.AngleAxis(turnAmount, Vector3.up);
+
+        rb.MoveRotation(
+            turnRotation * rb.rotation
+        );
     }
 
     private void ApplyLateralGrip()
@@ -252,4 +280,5 @@ public class DeliveryTruck : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
     }
+
 }
