@@ -26,6 +26,7 @@ public class DeliveryManager : MonoBehaviour
     [Header("Music")]
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private AudioSource deliverySFXSource;
+    [SerializeField] private AudioSource wlFXSource;
     [SerializeField] private AudioClip startClick;
     [SerializeField] private AudioClip win;
     [SerializeField] private AudioClip lose;
@@ -220,7 +221,7 @@ public class DeliveryManager : MonoBehaviour
         winMessage.text =
             winner ? winningText : failText;
 
-        PlayDeliverySound(winner ? win:lose);
+        PlaywlSound(winner ? win:lose);
     }
 
     private void SetNearestActiveDelivery()
@@ -275,6 +276,16 @@ public class DeliveryManager : MonoBehaviour
             return;
 
         deliverySFXSource.PlayOneShot(clip);
+    }
+
+
+
+    public void PlaywlSound(AudioClip clip)
+    {
+        if (wlFXSource == null || clip == null)
+            return;
+
+        wlFXSource.PlayOneShot(clip);
     }
 
     private void RestartGame()
